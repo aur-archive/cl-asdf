@@ -1,0 +1,35 @@
+post_install() {
+
+    ver=$(echo -n ${1} | sed 's:-[0-9]::')
+    cat << EOM
+
+To load included library asdf, run the following line:
+
+(load #p"/usr/share/common-lisp/source/asdf/asdf.lisp")
+
+To prevent a conflict with sbcl package, the info file has been renamed to asdf-${ver}.
+Use 'info asdf-$ver' command to view it.
+EOM
+
+    echo "---> installing asdf-${ver} info file..."
+    cd /usr/share/info
+    # ${1} should be new pkgver 
+    install-info asdf-${ver}.info.gz dir 2> /dev/null
+    echo "---> done"
+}
+
+post_upgrade() {
+    # "$1" should be new pkgver ($2 would be old pkgver)
+    post_install "$1"
+}
+
+pre_remove() {
+    ver=$(echo -n ${1} | sed 's:-[0-9]::')
+    echo "---> removing asdf-${ver} info file..."
+    cd /usr/share/info
+    # ${1} should be old $pkgver 
+    install-info --remove asdf-${ver}.info dir 2> /dev/null
+    echo "---> done"
+}
+
+# End of file
